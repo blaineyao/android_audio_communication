@@ -1,0 +1,33 @@
+C51 COMPILER V9.00   SYSTEM_CLOCK                                                          12/27/2014 14:34:16 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE SYSTEM_CLOCK
+OBJECT MODULE PLACED IN ..\output\system_clock.obj
+COMPILER INVOKED BY: E:\Sortware\Keil\C51\BIN\C51.EXE ..\Src\system_clock.c BROWSE INCDIR(..\App;..\Inc;..\Src) DEBUG OB
+                    -JECTEXTEND PRINT(.\system_clock.lst) OBJECT(..\output\system_clock.obj)
+
+line level    source
+
+   1          #include "system_clock.h"
+   2          #include <intrins.h>
+   3          void init_sysclock(void)
+   4          {
+   5   1              CLKCON  = (1<<_32K_SPDUP)|(1<<HFON)|(1<<FS)     ;  //32.768kHzÕñµ´Æ÷¼ÓËÙÄ£Ê½£¬ÓÉÈí¼þ»òÕßÓ²¼þÖÃ1;fSYS= fOSCS;´
+             -ò¿ªÄÚ²¿4MHz RCÕñµ´Æ÷; Ñ¡ÔñµÍÆµÊ±ÖÓÎªOSCSCLK
+   6   1              _nop_();
+   7   1              _nop_();
+   8   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =      6    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

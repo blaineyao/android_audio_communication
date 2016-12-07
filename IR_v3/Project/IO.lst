@@ -1,0 +1,29 @@
+C51 COMPILER V9.00   IO                                                                    12/27/2014 14:34:16 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE IO
+OBJECT MODULE PLACED IN ..\output\IO.obj
+COMPILER INVOKED BY: E:\Sortware\Keil\C51\BIN\C51.EXE ..\Src\IO.c BROWSE INCDIR(..\App;..\Inc;..\Src) DEBUG OBJECTEXTEND
+                    - PRINT(.\IO.lst) OBJECT(..\output\IO.obj)
+
+line level    source
+
+   1          #include "IO.h"
+   2          void init_IO(void)
+   3          {
+   4   1      
+   5   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =      1    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,72 @@
+C51 COMPILER V9.00   TIMER                                                                 05/28/2015 16:14:40 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE TIMER
+OBJECT MODULE PLACED IN ..\output\timer.obj
+COMPILER INVOKED BY: E:\Sortware\Keil\C51\BIN\C51.EXE ..\Src\timer.c BROWSE INCDIR(..\App;..\Inc;..\Src;..\Core) DEBUG O
+                    -BJECTEXTEND PRINT(.\timer.lst) OBJECT(..\output\timer.obj)
+
+line level    source
+
+   1          #include "timer.h"
+   2          #include "Mytypedef.h"
+   3          #include "user.h"
+   4          //F05F 100ms   理论
+   5          //0x0FEB0 10ms  测试
+   6          //FFD7 1ms              理论
+   7          //2.5ms->0x0FFB0   测试
+   8          //2ms-> 0x0FFC0  测试
+   9          #define value_2ms               0x0FFC0
+  10          #define value_2_5ms             0x0FFB0
+  11          #define value_10ms              0x0FEB0
+  12          #define value_100ms             0x0F05F
+  13          
+  14          #define timer2_value    time_unit       
+  15          #define TH2_value               (timer2_value>>8)&0xff
+  16          #define TL2_value               timer2_value&0xff
+  17          unsigned int timecount2=0;
+  18          void init_timer2(void)
+  19          {
+  20   1              T2CON=0;
+  21   1              T2MOD|=(1<<TLCKP2);//系统时钟作为定时器2的时钟源
+  22   1      }
+  23          void init_timer3(void)//
+  24          {
+  25   1              //T3CON=(1<<T3CLKS1);
+  26   1              //T3CON=(1<<TR3);//启动定时器3
+  27   1      }
+  28          void Timer2_Start(void)
+  29          {
+  30   1              TL2=TL2_value;
+  31   1              TH2=TH2_value;
+  32   1              RCAP2L=TL2;
+  33   1              RCAP2H=TH2;
+  34   1              Open_Timer2_IRQ;
+  35   1              Start_Timer2;
+  36   1      }
+  37          void Timer2_Stop(void)
+  38          {
+  39   1              Close_Timer2_IRQ;
+  40   1              Close_Timer2;
+  41   1      }
+  42          void time2_interrupt(void)interrupt 5
+  43          {
+  44   1              T2CON&=~(1<<TF2);//清除定时器2中断标志位
+  45   1              timecount2++;   
+  46   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     50    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      2    ----
+C51 COMPILER V9.00   TIMER                                                                 05/28/2015 16:14:40 PAGE 2   
+
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

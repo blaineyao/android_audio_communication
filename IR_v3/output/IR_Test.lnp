@@ -1,0 +1,8 @@
+"..\output\App.obj",
+"..\output\main.obj",
+"..\output\timer.obj",
+"..\output\LCD.obj",
+"..\output\INT4.obj",
+"..\output\Coder.obj" 
+TO "..\output\IR_Test" 
+PRINT(".\IR_Test.m51") RAMSIZE(256) 

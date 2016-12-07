@@ -1,0 +1,275 @@
+C51 COMPILER V9.00   APP                                                                   05/28/2015 16:14:39 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE APP
+OBJECT MODULE PLACED IN ..\output\App.obj
+COMPILER INVOKED BY: E:\Sortware\Keil\C51\BIN\C51.EXE ..\App\App.c BROWSE INCDIR(..\App;..\Inc;..\Src;..\Core) DEBUG OBJ
+                    -ECTEXTEND PRINT(.\App.lst) OBJECT(..\output\App.obj)
+
+line level    source
+
+   1          #include "App.h"
+   2          #include "timer.h"
+   3          #include "MyTypedef.h"
+   4          #include "LCD.h"
+   5          #include "sh77p1651.h"
+   6          #include "INT4.h"
+   7          #include "Coder.h"
+   8          #include "user.h"
+   9          #include <intrins.h>
+  10          
+  11          #define delay_500us_bit                 _nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();
+             -_nop_();_nop_();_nop_()
+  12          #define delay_1ms_bit                   for(i=0;i<1;i++)_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_n
+             -op_();
+  13          #define delay_2ms_bit                   for(i=0;i<3;i++)_nop_();_nop_();_nop_();_nop_();_nop_();_nop_()
+  14          
+  15          sbit mic_pin=P1^1;// Add new 2015/3/3
+  16          
+  17          extern unsigned char int4_status;
+  18          unsigned char audio_data=0;
+  19          
+  20          void init_sysclock(void);//Ê±ÖÓ³õÊ¼»¯
+  21          void time2_interrupt(void);
+  22          void INT4_interrupt(void);
+  23          void send_data(unsigned char byte_data);
+  24          
+  25          void system_init(void)
+  26          {
+  27   1              init_sysclock();
+  28   1              init_timer2();
+  29   1              init_timer3();
+  30   1              init_LCD();
+  31   1              init_INT4();
+  32   1      
+  33   1              P1CR|=(1<<P1CR1);//P1-1Êä³öÄ£Ê½
+  34   1      
+  35   1              Open_IRQ;//ÔÊÐíÈ«¾ÖÖÐ¶Ï
+  36   1              INT4_Start();//¿ªÆôÍâÍâ²¿ÖÐ¶Ï
+  37   1      }
+  38          
+  39          void init_sysclock(void)//Ê±ÖÓ³õÊ¼»¯
+  40          {
+  41   1              CLKCON  = (1<<_32K_SPDUP)|(1<<HFON)|(1<<FS)     ;  //32.768kHzÕñµ´Æ÷¼ÓËÙÄ£Ê½£¬ÓÉÈí¼þ»òÕßÓ²¼þÖÃ1;fSYS= fOSCS;´
+             -ò¿ªÄÚ²¿4MHz RCÕñµ´Æ÷; Ñ¡ÔñµÍÆµÊ±ÖÓÎªOSCSCLK
+  42   1              _nop_();
+  43   1              _nop_();
+  44   1      }
+  45          
+  46          void system_runing(void)//ÏµÍ³ÔËÐÐ
+  47          {
+  48   1              unsigned char temp;
+  49   1              send_data(0x55);
+  50   1              audio_data=72;
+  51   1              LCD_Display_Num(0,audio_data/1000);
+C51 COMPILER V9.00   APP                                                                   05/28/2015 16:14:39 PAGE 2   
+
+  52   1              LCD_Display_Num(1,audio_data/100%10);
+  53   1              LCD_Display_Num(2,audio_data/10%10);
+  54   1              LCD_Display_Num(3,audio_data%10);
+  55   1              while(1)
+  56   1              {
+  57   2                      RSTSTAT=RSTSTAT & (0x78);       
+  58   2                      if(int4_status==1)//ÊÕµ½Êý¾Ý
+  59   2                      {
+  60   3                              int4_status=0;
+  61   3                              temp=Decoder();//ÒëÂë
+  62   3                              if(temp)//Êä³öÒëÂë½á¹û
+  63   3                              {
+  64   4                                      LCD_Display_Num(0,audio_data/1000);
+  65   4                                      LCD_Display_Num(1,audio_data/100%10);
+  66   4                                      LCD_Display_Num(2,audio_data/10%10);
+  67   4                                      LCD_Display_Num(3,audio_data%10);
+  68   4                                      //send_data(audio_data);                        
+  69   4                              }       
+  70   3                      }
+  71   2              }
+  72   1      }
+  73          
+  74          void send_data(unsigned char byte_data)
+  75          {
+  76   1              unsigned char i=0;
+  77   1      
+  78   1              Close_IRQ;
+  79   1      
+  80   1              mic_pin=1;//ÆðÊ¼Î»
+  81   1              delay_2ms_bit; //2ms    16¸öÊý¾Ý
+  82   1              mic_pin=0;
+  83   1              delay_500us_bit; //500us        4¸öÊý¾Ý
+  84   1      /*
+  85   1              for(i=0;i<3;i++)
+  86   1              {
+  87   1                      if(byte_data&0x80)//1
+  88   1                      { 
+  89   1                              mic_pin=1;
+  90   1                              delay_1ms_bit; //1ms    8¸öÊý¾Ý
+  91   1                              mic_pin=0;
+  92   1                              delay_500us_bit;
+  93   1                      }
+  94   1                      else//0
+  95   1                      {
+  96   1                              mic_pin=1;
+  97   1                              delay_500us_bit;
+  98   1                              mic_pin=0;
+  99   1                              delay_1ms_bit;                                  
+ 100   1                      }
+ 101   1                      byte_data<<=1;
+ 102   1              }
+ 103   1      */ 
+ 104   1      ///*
+ 105   1              if(byte_data&0x80)//1                                                           0
+ 106   1              { 
+ 107   2                      mic_pin=1;
+ 108   2                      delay_1ms_bit; //1ms    8¸öÊý¾Ý
+ 109   2                      mic_pin=0;
+ 110   2                      delay_500us_bit;
+ 111   2              }
+ 112   1              else//0
+ 113   1              {
+C51 COMPILER V9.00   APP                                                                   05/28/2015 16:14:39 PAGE 3   
+
+ 114   2                      mic_pin=1;
+ 115   2                      delay_500us_bit;
+ 116   2                      mic_pin=0;
+ 117   2                      delay_1ms_bit;                                  
+ 118   2              }
+ 119   1              byte_data<<=1;
+ 120   1      
+ 121   1              if(byte_data&0x80)//1                                                                   1
+ 122   1              { 
+ 123   2                      mic_pin=1;
+ 124   2                      delay_1ms_bit; //1ms    8¸öÊý¾Ý
+ 125   2                      mic_pin=0;
+ 126   2                      delay_500us_bit;
+ 127   2              }
+ 128   1              else//0
+ 129   1              {
+ 130   2                      mic_pin=1;
+ 131   2                      delay_500us_bit;
+ 132   2                      mic_pin=0;
+ 133   2                      delay_1ms_bit;                                  
+ 134   2              }
+ 135   1              byte_data<<=1;
+ 136   1      
+ 137   1              if(byte_data&0x80)//1                                                   2
+ 138   1              { 
+ 139   2                      mic_pin=1;
+ 140   2                      delay_1ms_bit; //1ms    8¸öÊý¾Ý
+ 141   2                      mic_pin=0;
+ 142   2                      delay_500us_bit;
+ 143   2              }
+ 144   1              else//0
+ 145   1              {
+ 146   2                      mic_pin=1;
+ 147   2                      delay_500us_bit;
+ 148   2                      mic_pin=0;
+ 149   2                      delay_1ms_bit;                                  
+ 150   2              }
+ 151   1              byte_data<<=1;
+ 152   1      
+ 153   1              if(byte_data&0x80)//1                                                   3
+ 154   1              { 
+ 155   2                      mic_pin=1;
+ 156   2                      delay_1ms_bit; //1ms    8¸öÊý¾Ý
+ 157   2                      mic_pin=0;
+ 158   2                      delay_500us_bit;
+ 159   2              }
+ 160   1              else//0
+ 161   1              {
+ 162   2                      mic_pin=1;
+ 163   2                      delay_500us_bit;
+ 164   2                      mic_pin=0;
+ 165   2                      delay_1ms_bit;                                  
+ 166   2              }
+ 167   1              byte_data<<=1;
+ 168   1      
+ 169   1              if(byte_data&0x80)//1                                                   4
+ 170   1              { 
+ 171   2                      mic_pin=1;
+ 172   2                      delay_1ms_bit; //1ms    8¸öÊý¾Ý
+ 173   2                      mic_pin=0;
+ 174   2                      delay_500us_bit;
+ 175   2              }
+C51 COMPILER V9.00   APP                                                                   05/28/2015 16:14:39 PAGE 4   
+
+ 176   1              else//0
+ 177   1              {
+ 178   2                      mic_pin=1;
+ 179   2                      delay_500us_bit;
+ 180   2                      mic_pin=0;
+ 181   2                      delay_1ms_bit;                                  
+ 182   2              }
+ 183   1              byte_data<<=1;
+ 184   1      
+ 185   1              if(byte_data&0x80)//1                                                   5
+ 186   1              { 
+ 187   2                      mic_pin=1;
+ 188   2                      delay_1ms_bit; //1ms    8¸öÊý¾Ý
+ 189   2                      mic_pin=0;
+ 190   2                      delay_500us_bit;
+ 191   2              }
+ 192   1              else//0
+ 193   1              {
+ 194   2                      mic_pin=1;
+ 195   2                      delay_500us_bit;
+ 196   2                      mic_pin=0;
+ 197   2                      delay_1ms_bit;                                  
+ 198   2              }
+ 199   1              byte_data<<=1;
+ 200   1      
+ 201   1              if(byte_data&0x80)//1                                                   6
+ 202   1              { 
+ 203   2                      mic_pin=1;
+ 204   2                      delay_1ms_bit; //1ms    8¸öÊý¾Ý
+ 205   2                      mic_pin=0;
+ 206   2                      delay_500us_bit;
+ 207   2              }
+ 208   1              else//0
+ 209   1              {
+ 210   2                      mic_pin=1;
+ 211   2                      delay_500us_bit;
+ 212   2                      mic_pin=0;
+ 213   2                      delay_1ms_bit;                                  
+ 214   2              }
+ 215   1              byte_data<<=1;
+ 216   1      
+ 217   1              if(byte_data&0x80)//1                                            7
+ 218   1              { 
+ 219   2                      mic_pin=1;
+ 220   2                      delay_1ms_bit; //1ms    8¸öÊý¾Ý
+ 221   2                      mic_pin=0;
+ 222   2                      delay_500us_bit;
+ 223   2              }
+ 224   1              else//0
+ 225   1              {
+ 226   2                      mic_pin=1;
+ 227   2                      delay_500us_bit;
+ 228   2                      mic_pin=0;
+ 229   2                      delay_1ms_bit;                                  
+ 230   2              }
+ 231   1              byte_data<<=1;
+ 232   1      //*/
+ 233   1              Open_IRQ;
+ 234   1      }
+ 235          
+ 236          
+ 237          
+C51 COMPILER V9.00   APP                                                                   05/28/2015 16:14:39 PAGE 5   
+
+ 238          
+ 239          
+ 240          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    740    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      1    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
