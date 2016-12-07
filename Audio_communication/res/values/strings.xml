@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Audio_communication</string>
+    <string name="action_settings">Settings</string>
+	<string name="sendmsg">发送</string>
+	<string name="recmsg">接收消息:</string>
+	<string name="recmsgoff">消息关</string>
+	<string name="recmsgon">消息开</string>
+	<string name="note">注意:输入的值为0~255</string>
+
+</resources>
