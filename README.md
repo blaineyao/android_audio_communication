@@ -9,7 +9,8 @@ Author: [shanghai university](http://www.shu.edu.cn/)
 email: jinyanliang@staff.shu.edu.cn or blaine.yao.shu@gmail.com
 ***
 ## 文件说明
-* Audio_communication:Android端app代码
-* IR_v3: 遥控器上MCU代码
+* Audio_communication:Android端app的source code
+* IR_v3: 遥控器上MCU上的source code
+
 ## 成员简介
 * blaineyao, email:blaine.yao.shu@gmail.com
